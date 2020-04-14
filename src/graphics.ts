@@ -1,14 +1,14 @@
 import { Vector2d } from "./vector";
 export default class Graphics {
-    instructions:Array<{name:string,params?:Array<any>}>;
+    instructions:Array<string>;
     RECTMODE:('CORNER'|'CENTER');
     constructor(){
         this.instructions=[];
         /** @typedef ('CORNER|'CENTER') the currently selected rect mode. */
         this.RECTMODE='CORNER';
     }
-    instruct(name:string,params?:Array<any>){
-        this.instructions.push({name,params});
+    instruct(instruction:string){
+        this.instructions.push(instruction);
     }
     /**
      * Draws a rectangle on the canvas.
@@ -21,10 +21,10 @@ export default class Graphics {
     rect(x: number, y: number, w: number, h: number) {
         switch(this.RECTMODE) {
             case 'CORNER':
-                this.instruct("fillRect", [x, y, w, h]);
+                this.instruct(`fillRect(${x}, ${y}, ${w}, ${h});`);
                 break;
             case 'CENTER':
-                this.instruct("fillRect", [x-w/2, y-h/2, w, h]);
+                this.instruct(`fillRect(${x-w/2}, ${y-h/2}, ${w}, ${h});`);
                 break;
         }
         this.stroke();
@@ -37,7 +37,7 @@ export default class Graphics {
     * @returns {void}
     */
     vectorRect(v:Vector2d, w:number, h:number) {
-            this.rect(v.x,v.y,w,h);
+        this.rect(v.x,v.y,w,h);
     }
     /**
      * Clears a rectangular area on the canvas.
@@ -50,10 +50,10 @@ export default class Graphics {
     clear(x: number, y:number, w: number, h: number) {
         switch(this.RECTMODE) {
             case 'CORNER':
-                this.instruct("clearRect", [x, y, w, h]);
+                this.instruct(`clearRect(${x}, ${y}, ${w}, ${h});`);
                 break;
             case 'CENTER':
-                this.instruct("clearRect", [x-w/2, y-h/2, w, h]);
+                this.instruct(`clearRect(${x-w/2}, ${y-h/2}, ${w}, ${h});`);
                 break;
         }
     }
@@ -66,7 +66,7 @@ export default class Graphics {
      * @returns {void}
      */
     fillRGBA(red:number,green:number,blue:number,alpha:number){
-        this.instruct("fillStyle", [`rgba(${red},${green},${blue},${alpha})`]);
+        this.instruct(`fillStyle='rgba(${red},${green},${blue},${alpha})';`);
     }
     /**
      * Sets the fill colour to an rgb value.
@@ -76,7 +76,7 @@ export default class Graphics {
      * @returns {void}
      */
     fillRGB(red:number,green:number,blue:number){
-        this.instruct("fillStyle", [`rgb(${red},${green},${blue})`]);
+        this.instruct(`fillStyle='rgb(${red},${green},${blue})';`);
     }
     /**
      * Sets the fill colour to a CSS style.
@@ -84,7 +84,7 @@ export default class Graphics {
      * @returns {void}
      */
     fillCSS(colour:string){
-        this.instruct("fillStyle", [colour]);
+        this.instruct(`fillStyle='${colour}'`);
     }
     /**
      * Sets the stroke colour to an rgba value.
@@ -95,7 +95,7 @@ export default class Graphics {
      * @returns {void}
      */
     strokeRGBA(red:number,green:number,blue:number,alpha:number){
-        this.instruct("strokeStyle", [`rgba(${red},${green},${blue},${alpha})`]);
+        this.instruct(`strokeStyle='rgba(${red},${green},${blue},${alpha})';`);
     }
     /**
      * Sets the stroke colour to an rgba value.
@@ -104,14 +104,14 @@ export default class Graphics {
      * @param {number} blue A number between 0 and 255 determining how blue the colour is.
      */
     strokeRGB(red:number,green:number,blue:number){
-        this.instruct("strokeStyle", [`rgb(${red},${green},${blue})`]);
+        this.instruct(`strokeStyle='rgb(${red},${green},${blue})';`);
     }
     /**
      * Sets the stroke colour to a CSS style.
      * @param {string} colour the CSS colour style.
      */
     strokeCSS(colour:string){
-        this.instruct("strokeStyle", [colour]);
+        this.instruct(`strokeStyle='${colour}';`);
     }
     /**
      * Sets the rect mode which will effect Graphics.rect, Graphics.clear, & Graphics.vector.rect.
@@ -134,7 +134,9 @@ export default class Graphics {
      * @param {boolean} [antiClockwise=false] wether or not the arc will go counter clockwise.
      */
     arc(x:number, y:number, rx:number, ry:number, rotation:number, startAngle:number, endAngle:number, antiClockwise:boolean=false){
-        this.instruct("ellipse",[x,y,rx,ry,rotation,startAngle,endAngle,antiClockwise]);
+        this.beginPath();
+        this.instruct(`ellipse(${x},${y},${rx},${ry},${rotation},${startAngle},${endAngle},${antiClockwise})`);
+        this.closePath();
         this.fill();
         this.stroke();
     }
@@ -163,12 +165,18 @@ export default class Graphics {
      * Fills the current path
      */
     fill(){
-        this.instruct("fill");
+        this.instruct("fill();");
     }
     /**
      * Strokes the current path
      */
     stroke(){
-        this.instruct("stroke");
+        this.instruct("stroke();");
+    }
+    beginPath(){
+        this.instruct("beginPath();")
+    }
+    closePath(){
+        this.instruct("closePath();")
     }
 }

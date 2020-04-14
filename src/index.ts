@@ -115,10 +115,12 @@ function start():void {
 };
 
 function frame () {
+    if(winClosed)return;
     if(loop instanceof Function)loop();
-    send("graphic-instructions",Window.Graphics.instructions);
+    for(let instruction of Window.Graphics.instructions)win.webContents.executeJavaScript(`instructions.push('ctx.${instruction}');`);
     Window.Graphics.instructions=[];
-    if(!winClosed)setTimeout(frame,1000/30);
+    win.webContents.executeJavaScript('frame();');
+    setTimeout(frame,1000/30);
 };
 
 /**
