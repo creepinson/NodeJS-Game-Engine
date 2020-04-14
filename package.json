@@ -1,0 +1,18 @@
+{
+  "name": "nodejs-game-engine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prestart": "npm run build",
+    "sketch": "electron examples/sketch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^13.11.1",
+    "electron": "^8.2.1"
+  }
+}
