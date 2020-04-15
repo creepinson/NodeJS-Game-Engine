@@ -10,6 +10,7 @@ let mousey=0;
 
 function frame(){
     for(let instruction of instructions)eval(instruction);
+    instructions=[];
 }
 
 document.addEventListener("keydown",e=>ipcRenderer.send("keyboard",{ code: e.keyCode, state: true }));

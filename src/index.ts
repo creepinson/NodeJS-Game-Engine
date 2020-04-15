@@ -1,4 +1,5 @@
-import Graphics from "./graphics";
+import G from "./graphics";
+import ER from "./entity registery";
 import { Vector, Vector2d } from "./vector";
 import { Entity2d } from "./entity";
 
@@ -7,6 +8,8 @@ let started:boolean = false;
 let setup:(Function|undefined);
 let loop:(Function|undefined);
 let winClosed:boolean=false;
+const Graphics:G=new G();
+const EntityRegistery:ER=new ER();
 
 const errIfNotStart=():void=>{
     if(!started) throw new Error("Can't call this method before the app starts");
@@ -66,8 +69,7 @@ const Window = {
         let bounds=win.webContents.getOwnerBrowserWindow().getBounds()
         this.width=bounds.width;
         this.height=bounds.height;
-    },
-    Graphics:new Graphics()
+    }
 };
 
 const Keyboard = {
@@ -117,8 +119,8 @@ function start():void {
 function frame () {
     if(winClosed)return;
     if(loop instanceof Function)loop();
-    for(let instruction of Window.Graphics.instructions)win.webContents.executeJavaScript(`instructions.push('ctx.${instruction}');`);
-    Window.Graphics.instructions=[];
+    for(let instruction of Graphics.instructions)win.webContents.executeJavaScript(`instructions.push("ctx.${instruction}");`);
+    Graphics.instructions=[];
     win.webContents.executeJavaScript('frame();');
     setTimeout(frame,1000/30);
 };
@@ -137,7 +139,9 @@ export function run(options: { setup?: Function, loop?: Function }) {
     return {
         Keyboard,
         Window,
-        Mouse
+        Mouse,
+        Graphics,
+        EntityRegistery
     };
 };
 

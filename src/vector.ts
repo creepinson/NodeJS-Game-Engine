@@ -101,7 +101,7 @@ export class Vector2d {
      * @returns {Vector2d} the result of the vector addition.
      */
     static add(v1:Vector2d, v2:Vector2d):Vector2d {
-        return Vector2d.copy(v1).add(v2);
+        return v1.copy().add(v2);
     }
 
     sub(v:Vector2d):Vector2d {
@@ -111,7 +111,7 @@ export class Vector2d {
     }
 
     static sub(v1:Vector2d, v2:Vector2d):Vector2d {
-        return Vector2d.copy(v1).sub(v2);
+        return v1.copy().sub(v2);
     }    
 
     scale(n:number):Vector2d {
@@ -121,7 +121,7 @@ export class Vector2d {
     }
 
     static scale(v:Vector2d, n:number):Vector2d {
-        return Vector2d.copy(v).scale(n);
+        return v.copy().scale(n);
     }
 
     mag():number {
@@ -133,10 +133,27 @@ export class Vector2d {
     }
 
     static normalize(v:Vector2d):Vector2d {
-        return Vector2d.copy(v).normalize();
+        return v.copy().normalize();
+    }
+
+    setMag(n:number) {
+        return this.normalize().scale(n);
+    }
+
+    static setMag(v:Vector2d,n:number) {
+        return v.copy().setMag(n);
+    }
+
+    copy(){
+        return new Vector2d(this.x,this.y);
     }
 
     static copy(v:Vector2d):Vector2d {
-        return new Vector2d(v.x, v.y);
+        return v.copy();
     }
+
+    static fromAngle(angle:number){
+        return new Vector2d(Math.sin(angle),Math.cos(angle));
+    }
+
 }

@@ -84,7 +84,7 @@ export default class Graphics {
      * @returns {void}
      */
     fillCSS(colour:string){
-        this.instruct(`fillStyle='${colour}'`);
+        this.instruct(`fillStyle='${colour}';`);
     }
     /**
      * Sets the stroke colour to an rgba value.
@@ -95,7 +95,7 @@ export default class Graphics {
      * @returns {void}
      */
     strokeRGBA(red:number,green:number,blue:number,alpha:number){
-        this.instruct(`strokeStyle='rgba(${red},${green},${blue},${alpha})';`);
+        this.fillCSS(`rgba(${red},${green},${blue},${alpha})`);
     }
     /**
      * Sets the stroke colour to an rgba value.
@@ -104,14 +104,14 @@ export default class Graphics {
      * @param {number} blue A number between 0 and 255 determining how blue the colour is.
      */
     strokeRGB(red:number,green:number,blue:number){
-        this.instruct(`strokeStyle='rgb(${red},${green},${blue})';`);
+        this.fillCSS(`rgb(${red},${green},${blue})`);
     }
     /**
      * Sets the stroke colour to a CSS style.
      * @param {string} colour the CSS colour style.
      */
     strokeCSS(colour:string){
-        this.instruct(`strokeStyle='${colour}';`);
+        this.instruct(`strokeStyle='${JSON.stringify(colour)}';`);
     }
     /**
      * Sets the rect mode which will effect Graphics.rect, Graphics.clear, & Graphics.vector.rect.
@@ -135,7 +135,7 @@ export default class Graphics {
      */
     arc(x:number, y:number, rx:number, ry:number, rotation:number, startAngle:number, endAngle:number, antiClockwise:boolean=false){
         this.beginPath();
-        this.instruct(`ellipse(${x},${y},${rx},${ry},${rotation},${startAngle},${endAngle},${antiClockwise})`);
+        this.instruct(`ellipse(${x},${y},${rx},${ry},${rotation},${startAngle},${endAngle},${antiClockwise});`);
         this.closePath();
         this.fill();
         this.stroke();
