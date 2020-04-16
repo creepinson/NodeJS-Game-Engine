@@ -152,8 +152,16 @@ export class Vector2d {
         return v.copy();
     }
 
+    angle(){
+        Math.atan2(this.y,this.x);
+    }
+
     static fromAngle(angle:number){
         return new Vector2d(Math.sin(angle),Math.cos(angle));
+    }
+
+    static random() {
+        return Vector2d.fromAngle(Math.random()*Math.PI*2);
     }
 
 }

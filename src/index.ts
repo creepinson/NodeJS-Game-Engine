@@ -1,5 +1,5 @@
 import G from "./graphics";
-import ER from "./entity registery";
+import {EntityRegistery as ER} from "./entity registery";
 import { Vector, Vector2d } from "./vector";
 import { Entity2d } from "./entity";
 
@@ -8,7 +8,7 @@ let started:boolean = false;
 let setup:(Function|undefined);
 let loop:(Function|undefined);
 let winClosed:boolean=false;
-const Graphics:G=new G();
+const Graphics:G=new G((instruction:string)=>win.webContents.executeJavaScript(`instructions.push("ctx.${instruction}");`));
 const EntityRegistery:ER=new ER();
 
 const errIfNotStart=():void=>{
@@ -119,8 +119,6 @@ function start():void {
 function frame () {
     if(winClosed)return;
     if(loop instanceof Function)loop();
-    for(let instruction of Graphics.instructions)win.webContents.executeJavaScript(`instructions.push("ctx.${instruction}");`);
-    Graphics.instructions=[];
     win.webContents.executeJavaScript('frame();');
     setTimeout(frame,1000/30);
 };
