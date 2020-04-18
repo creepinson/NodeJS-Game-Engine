@@ -1,11 +1,13 @@
 import {Entity2d} from "./entity";
+import Graphics from "./graphics";
 
 export class EntityRegistery {
     uid:number=0;
     entities:{[key:number]:Entity2d}={};
     groups:{[key:string]:EntityGroup}={};
-    constructor(){
-
+    scope:{Graphics:Graphics};
+    constructor(scope:{Graphics:Graphics}){
+        this.scope=scope;
     }
 
     addEntity(entity:Entity2d,group:string){
@@ -24,16 +26,18 @@ export class EntityRegistery {
         if(!this.groups.hasOwnProperty(group))throw new Error(`Entity group ${group} doesn't exist`);
         for(let i=0;i<(options.timeSteps||1);i++){
             for(let uid in this.groups[group].entities) {
-                this.groups[group].entities[uid].update(this.groups,options);
+                this.groups[group].entities[uid].update({...this.scope,...{EntityRegistery:this}},options);
                 if(this.groups[group].entities[uid].removed) {
                     delete this.groups[group].entities[uid]
                     delete this.entities[uid];
                 }
             }
         }
-        for(let uid in this.groups[group].entities) {
-            this.groups[group].entities[uid].frame();
-        }
+        this.groups[group].forEntity((entity,uid)=>{
+            if(this.groups[group].entities[uid].removed)delete this.groups[group].entities[uid];
+            entity.frame({...this.scope,...{EntityRegistery:this}});
+        })
+        
     }
 
 }
@@ -45,6 +49,9 @@ export class EntityGroup {
         this.name=name;
     }
     forEntity(callback:(entity:Entity2d,uid:number)=>void){
-        for(let uid in this.entities)callback(this.entities[uid],+uid);
+        for(let uid in this.entities)if(!this.entities[uid].removed)callback(this.entities[uid],+uid);
+    }
+    count(){
+        return Object.keys(this.entities).length;
     }
 }

@@ -4,14 +4,8 @@ const canvas=document.querySelector("canvas");
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 const ctx=canvas.getContext('2d');
-let instructions=[];
 let mousex=0;
 let mousey=0;
-
-function frame(){
-    for(let instruction of instructions)eval(instruction);
-    instructions=[];
-}
 
 document.addEventListener("keydown",e=>ipcRenderer.send("keyboard",{ code: e.keyCode, state: true }));
 document.addEventListener("keyup",e=>ipcRenderer.send("keyboard",{ code: e.keyCode, state: false }));

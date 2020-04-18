@@ -8,8 +8,8 @@ let started:boolean = false;
 let setup:(Function|undefined);
 let loop:(Function|undefined);
 let winClosed:boolean=false;
-const Graphics:G=new G((instruction:string)=>win.webContents.executeJavaScript(`instructions.push("ctx.${instruction}");`));
-const EntityRegistery:ER=new ER();
+const Graphics:G=new G();
+const EntityRegistery:ER=new ER({Graphics});
 
 const errIfNotStart=():void=>{
     if(!started) throw new Error("Can't call this method before the app starts");
@@ -101,6 +101,7 @@ function start():void {
         Window.width=size[0];
         Window.height=size[1];
         ipcMain.on("ready", () => {
+            started = true;
             if (setup instanceof Function) setup();
             frame();
         });
@@ -112,14 +113,14 @@ function start():void {
             Mouse.x=data.x;
             Mouse.y=data.y;
         });
-        started = true;
     });
 };
 
-function frame () {
+async function frame () {
     if(winClosed)return;
     if(loop instanceof Function)loop();
-    win.webContents.executeJavaScript('frame();');
+    await win.webContents.executeJavaScript(`${Graphics.instructions.map(s=>`ctx.${s}`).join('\n')}`);
+    Graphics.instructions=[];
     setTimeout(frame,1000/30);
 };
 

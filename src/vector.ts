@@ -14,7 +14,7 @@ export class Vector {
     }
 
     static add(v1:Vector, v2:Vector):Vector {
-        return Vector.copy(v1).add(v2);
+        return v1.copy().add(v2);
     }
 
     sub(v:Vector):Vector {
@@ -24,7 +24,7 @@ export class Vector {
     }
 
     static sub(v1:Vector, v2:Vector):Vector {
-        return Vector.copy(v1).sub(v2);
+        return v1.copy().sub(v2);
     }    
 
     scale(n:number):Vector {
@@ -33,7 +33,7 @@ export class Vector {
     }
 
     static scale(v:Vector, n:number):Vector {
-        return Vector.copy(v).scale(n);
+        return v.copy().scale(n);
     }
 
     mag():number {
@@ -47,7 +47,19 @@ export class Vector {
     }
 
     static normalize(v:Vector):Vector {
-        return Vector.copy(v).normalize();
+        return v.copy().normalize();
+    }
+
+    setMag(n:number) {
+        return this.normalize().scale(n);
+    }
+
+    static setMag(v:Vector,n:number) {
+        return v.copy().setMag(n);
+    }
+
+    copy() {
+        return Vector.fromArray(this.toArray());
     }
 
     toArray():Array<number> {
@@ -60,10 +72,6 @@ export class Vector {
         let v=new Vector(array.length);
         v.data=array;
         return v;
-    }
-
-    static copy(v:Vector):Vector {
-        return Vector.fromArray(v.toArray());
     }
 
 }
@@ -104,62 +112,120 @@ export class Vector2d {
         return v1.copy().add(v2);
     }
 
+    /**
+     * Subtract another vector from this vector.
+     * @param {Vector2d} v the vector to subtracted.
+     * @returns {Vector2d}
+     */
     sub(v:Vector2d):Vector2d {
         this.x-=v.x;
         this.y-=v.y;
         return this;
     }
 
+    /**
+     * Get the difference of two vectors.
+     * @param {Vector2d} v1 the operand vector.
+     * @param {Vector2d} v2 the operator vector.
+     * @returns {Vector2d} the result of the subtraction.
+     */
     static sub(v1:Vector2d, v2:Vector2d):Vector2d {
         return v1.copy().sub(v2);
-    }    
+    }
 
+    /**
+     * Scale the vector by a certain factor.
+     * @param {number} n the factor to scale by.
+     * @returns {Vector2d}
+     */
     scale(n:number):Vector2d {
         this.x*=n;
         this.y*=n;
         return this;
     }
 
+    /**
+     * Get the scaled version of a vector.
+     * @param {Vector2d} v the vector to scale.
+     * @param {number} n the factor to scale by.
+     * @returns {Vector2d} the scaled vector.
+     */
     static scale(v:Vector2d, n:number):Vector2d {
         return v.copy().scale(n);
     }
 
+    /**
+     * Get the length of the vector.
+     * @returns {number} the length.
+     */
     mag():number {
         return (this.x**2+this.y**2)**(1/2);
     }
 
+    /**
+     * Get a vector that has the same direction but has a length of one.
+     * @returns {Vector2d}
+     */
     normalize():Vector2d {
         return this.scale(this.mag()**-1);
     }
 
+    /**
+     * Get the normalized version of a vector
+     * @param {Vector2d} v the vector to be normalized
+     * @returns {Vector2d} the normalized vector.
+     */
     static normalize(v:Vector2d):Vector2d {
         return v.copy().normalize();
     }
 
+    /**
+     * Set the length of this vector
+     * @param {number} n new length.
+     * @returns {Vector2d}
+     */
     setMag(n:number) {
         return this.normalize().scale(n);
     }
 
+    /**
+     * Get the vector with the length set to n.
+     * @param {Vector2d} v vector to scale.
+     * @param {number} n the new length.
+     */
     static setMag(v:Vector2d,n:number) {
         return v.copy().setMag(n);
     }
 
+    /**
+     * Get a copy of this vector
+     * @returns {Vector2d} a copy of this vector.
+     */
     copy(){
         return new Vector2d(this.x,this.y);
     }
 
-    static copy(v:Vector2d):Vector2d {
-        return v.copy();
-    }
-
+    /**
+     * Get the angle of this vector.
+     * @returns {number} the angle of this vector.
+     */
     angle(){
-        Math.atan2(this.y,this.x);
+        return Math.atan2(this.y,this.x)-Math.PI/2;
     }
 
+    /**
+     * Create a vector of length one rotated in this direction.
+     * @param {number} angle the angle to rotate by in radians.
+     * @returns {Vector2d} the created vector.
+     */
     static fromAngle(angle:number){
-        return new Vector2d(Math.sin(angle),Math.cos(angle));
+        return new Vector2d(Math.cos(angle),Math.sin(angle));
     }
 
+    /**
+     * Create a random vector of length one.
+     * @returns {Vector2d} the created vector.
+     */
     static random() {
         return Vector2d.fromAngle(Math.random()*Math.PI*2);
     }

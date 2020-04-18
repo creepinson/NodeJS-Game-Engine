@@ -1,5 +1,6 @@
 import {Vector2d} from"./vector";
-import {EntityGroup} from "./entity registery";
+import {EntityRegistery} from "./entity registery";
+import Graphics from "./graphics";
 
 export class Entity2d {
     uid:(number|undefined);
@@ -9,23 +10,27 @@ export class Entity2d {
     acc:Vector2d=new Vector2d();
     maxSpeed:number;
     
-    constructor(x:number,y:number,options:{maxSpeed?:number}){
-        this.pos=new Vector2d(x,y);
+    constructor(pos:Vector2d,options:{maxSpeed?:number}={}){
+        this.pos=pos;
         this.maxSpeed=options.maxSpeed||Infinity;
     }
 
-    update(entityGroups:{[key:string]:EntityGroup},options:{timeStepLength?:number}){
+    update(scope:{Graphics:Graphics,EntityRegistery:EntityRegistery},options:{timeStepLength?:number}){
         this.vel.add(this.acc.copy().scale(options.timeStepLength||1));
         this.acc=new Vector2d();
         if(this.vel.mag()>this.maxSpeed)this.vel.setMag(this.maxSpeed);
         this.pos.add(this.vel.copy().scale(options.timeStepLength||1));
-        this.timeStep(entityGroups);
+        this.timeStep(scope);
     }
 
     accelerate(v:Vector2d){
         this.acc.add(v);
     }
 
-    timeStep(entityGroups:{[key:string]:EntityGroup}) {}
-    frame() {}
+    kill() {
+        this.removed=true;
+    }
+
+    timeStep(scope:{Graphics:Graphics,EntityRegistery:EntityRegistery}) {}
+    frame(scope:{Graphics:Graphics,EntityRegistery:EntityRegistery}) {}
 }

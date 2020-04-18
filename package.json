@@ -5,8 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "prestart": "npm run build",
-    "sketch": "electron examples/sketch"
+    "prestart": "npm run build"
   },
   "keywords": [],
   "author": "",

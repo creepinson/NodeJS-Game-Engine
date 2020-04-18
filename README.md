@@ -25,8 +25,8 @@ class Planet extends Entity2d {
         this.colour=`rgb(${Math.round(Math.random()*255)},${Math.round(Math.random()*255)},${Math.round(Math.random()*255)})`;
     }
 
-    timeStep(entityGroups){
-        entityGroups["planets"].forEntity((entity,uid)=>{
+    timeStep({EntityRegistery}){
+        EntityRegistery.groups["planets"].forEntity((entity,uid)=>{
             if(uid!=this.uid){
                 let d=entity.pos.copy().sub(this.pos);
                 this.accelerate(d.setMag(0.1/d.mag()));
@@ -36,9 +36,12 @@ class Planet extends Entity2d {
         this.accelerate(d.setMag(0.1/d.mag()));
     }
 
-    frame(){
+    frame({Graphics}){
+        Graphics.push();
         Graphics.fillCSS(this.colour);
-        Graphics.vectorEllipse(this.pos,this.r);
+        Graphics.vectorTransform(this.pos);
+        Graphics.ellipse(0, 0, 25);
+        Graphics.pop();
     }
 
 }
