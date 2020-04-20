@@ -15,6 +15,9 @@ document.addEventListener("mousemove",e=>{
     mousey=e.y;
     ipcRenderer.send("mousemove",{x:e.x, y:e.y});
 });
+document.addEventListener("mousedown",e=>{
+    ipcRenderer.send("mousedown",{button:e.which});
+})
 
 ipcRenderer.on("resize",()=>{
     canvas.width=window.innerWidth;

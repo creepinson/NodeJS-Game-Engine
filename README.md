@@ -26,20 +26,20 @@ class Planet extends Entity2d {
     }
 
     timeStep({EntityRegistery}){
-        EntityRegistery.groups["planets"].forEntity((entity,uid)=>{
+        EntityRegistery.getGroup("planets").forEntity((entity,uid)=>{
             if(uid!=this.uid){
-                let d=entity.pos.copy().sub(this.pos);
-                this.accelerate(d.setMag(0.1/d.mag()));
+                let d=entity.body.pos.copy().sub(this.body.pos);
+                this.body.accelerate(d.setMag(0.1/d.mag()));
             }
         });
-        let d=sun.copy().sub(this.pos);
+        let d=sun.copy().sub(this.body.pos);
         this.accelerate(d.setMag(0.1/d.mag()));
     }
 
     frame({Graphics}){
         Graphics.push();
         Graphics.fillCSS(this.colour);
-        Graphics.vectorTransform(this.pos);
+        Graphics.vectorTransform(this.body.pos);
         Graphics.ellipse(0, 0, 25);
         Graphics.pop();
     }
@@ -56,7 +56,7 @@ function setup() {
 
 function loop() {
     Graphics.clear(0,0,Window.width,Window.height);
-    EntityRegistery.update("planets",{timeSteps:100,timeStepLength:0.1});
+    EntityRegistery.frame("planets");
     Graphics.fillCSS('yellow');
     Graphics.vectorEllipse(sun,25);
 }

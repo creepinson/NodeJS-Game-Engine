@@ -1,13 +1,15 @@
 import { Vector2d } from "./vector";
-import { Http2ServerRequest } from "http2";
+
 export default class Graphics {
     RECTMODE:('CORNER'|'CENTER');
     doStroke:boolean=true;
     doFill:boolean=true;
     instructions:Array<string>=[];
+    stack:Array<{RECTMODE:('CORNER'|"CENTER")}>;
     constructor() {
         /** @typedef ('CORNER|'CENTER') the currently selected rect mode. */
         this.RECTMODE='CORNER';
+        this.stack=[];
     }
     instruct(instruction:string) {
         this.instructions.push(instruction);
@@ -17,10 +19,10 @@ export default class Graphics {
      * @param {number} x the x position of the rectangle.
      * @param {number} y the y position of the rectangle.
      * @param {number} w the width of the rectangle.
-     * @param {number} h the height of the rectangle.
+     * @param {number} [h=w] the height of the rectangle.
      * @returns {void}
      */
-    rect(x: number, y: number, w: number, h: number) {
+    rect(x: number, y: number, w: number, h: number=w) {
         if(!this.doFill&&!this.doStroke)return;
         switch(this.RECTMODE) {
             case 'CORNER':
@@ -78,7 +80,7 @@ export default class Graphics {
      * @returns {void}
      */
     fillCSS(colour:string){
-        this.instruct(`fillStyle='${colour}';`);
+        this.instruct(`setFill('${colour}');`);
         this.doFill=true;
     }
     /**
@@ -106,7 +108,7 @@ export default class Graphics {
      * @param {string} colour the CSS colour style.
      */
     strokeCSS(colour:string){
-        this.instruct(`strokeStyle='${colour}';`);
+        this.instruct(`setStroke('${colour}');`);
         this.doStroke=true;
     }
     /**
@@ -129,13 +131,9 @@ export default class Graphics {
      * @param {number} endAngle the ending angle of the arc in radians
      * @param {boolean} [antiClockwise=false] wether or not the arc will go counter clockwise.
      */
-    arc(x:number, y:number, rx:number, ry:number, rotation:number, startAngle:number, endAngle:number, antiClockwise:boolean=false){
-        if(!(!this.doFill&&!this.doStroke)) {
-            this.beginPath();
-            this.instruct(`ellipse(${x},${y},${rx},${ry},${rotation},${startAngle},${endAngle},${antiClockwise});`);
-        };
-        if(this.doFill)this.fill();
-        if(this.doStroke)this.stroke();
+    ellipticalArc(x:number, y:number, rx:number, ry:number, rotation:number, startAngle:number, endAngle:number, antiClockwise:boolean=false){
+        if(!this.doFill&&!this.doStroke)return;
+        this.instruct(`ellipticalArc(${x},${y},${rx},${ry},${rotation},${startAngle},${endAngle},${antiClockwise});`);
     }
     /**
      * Draws an ellipse on the canvas.
@@ -143,25 +141,25 @@ export default class Graphics {
      * @param {number} y the y position of the ellipse.
      * @param {number} rx the radius of the ellipse along the x axis.
      * @param {number} [ry=rx] the radius of the ellipse along the y axis. 
-     * @param {number} rotation the rotation of the ellipse in radians.
      */
-    ellipse(x:number, y:number, rx:number, ry:number=rx, rotation?:number){
-        if(!(!this.doFill&&!this.doStroke))this.arc(x,y,rx,ry,rotation||0,0,Math.PI*2);
+    ellipse(x:number, y:number, rx:number, ry:number=rx){
+        if(!this.doFill&&!this.doStroke)return;
+        this.instruct(`ellipse(${x},${y},${rx},${ry});`);
+        if(this.doFill)this.fill();
+        if(this.doStroke)this.stroke();
     }
     /**
      * Draw a regular polygon on to the canvas.
+     * @param {number} x the x position of the polygon's center.
+     * @param {number} y the y position of the polygon's center.
      * @param {number} n the number of sides the polygon will have.
      * @param {number} r the radius of the polygon.
      */
-    polygon(n:number,r:number) {
-        if(!(!this.doFill&&!this.doStroke)){
-            this.beginPath();
-            for(let a=0;a<Math.PI*2;a+=Math.PI*2/n)this.vertex(r*Math.sin(a),r*Math.cos(a));
-            this.closePath();
-        }
+    polygon(x:number,y:number,n:number,r:number) {
+        if(!this.doFill&&!this.doStroke)return;
+        this.instruct(`polygon(${x},${y},${n},${r});`);
         if(this.doFill)this.fill();
         if(this.doStroke)this.stroke();
-    
     }
     /**
      * Draw text on to the canvas.
@@ -179,7 +177,7 @@ export default class Graphics {
      * @param {string} font the font to switch too.
      */
     font(font:string) {
-        this.instruct(`font='${font}'`)
+        this.instruct(`setFont('${font}')`)
     }
     /**
      * Fills the current path
@@ -223,19 +221,24 @@ export default class Graphics {
      * @param {number} y the y position of the vertex.
      */
     vertex(x:number, y:number) {
-        this.instruct(`lineTo(${x},${y});`);
+        this.instruct(`vertex(${x},${y});`);
     }
     /**
      * Push current canvas sate
      */
     push() {
         this.instruct("save();");
+        this.stack.push({
+            RECTMODE:this.RECTMODE
+        });
     }
     /**
      * Pop the top element from the canvas state stack
      */
     pop() {
-        this.instruct("restore();")
+        this.instruct("restore();");
+        let r=this.stack.pop();
+        this.RECTMODE=(r??{}).RECTMODE??this.RECTMODE;
     }
     /**
      * Translate the origin.
@@ -250,7 +253,7 @@ export default class Graphics {
      * @param {number} angle the angle to rotate by.
      */
     rotate(angle:number) {
-        this.instruct(`rotate(${angle})`);
+        this.instruct(`rotate(${angle});`);
     }
     /**
      * Translates and rotates according to the direction of the vector.

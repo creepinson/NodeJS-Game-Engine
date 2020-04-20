@@ -1,12 +1,13 @@
 import G from "./graphics";
-import {EntityRegistery as ER} from "./entity registery";
-import { Vector, Vector2d } from "./vector";
-import { Entity2d } from "./entity";
+import {EntityRegistery as ER, Entity2d} from "./entity";
+import { Vector2d } from "./vector";
+import {Body2d,CircleBody,RectBody,PolygonBody} from "./physics";
 
 let win:any;
 let started:boolean = false;
 let setup:(Function|undefined);
 let loop:(Function|undefined);
+let mousePressed:(Function|undefined);
 let winClosed:boolean=false;
 const Graphics:G=new G();
 const EntityRegistery:ER=new ER({Graphics});
@@ -73,6 +74,7 @@ const Window = {
 };
 
 const Keyboard = {
+    /**@typedef object an object containing booleans representitive of whether or not the key corrsponding to the index is pressed down */
     keys:{} as {[key:string]:boolean},
     /**
      * Returns true if the key is down otherwise false
@@ -84,7 +86,11 @@ const Keyboard = {
     }
 };
 
-const Mouse = new Vector2d();
+const Mouse= new(class Mouse extends Vector2d {
+    constructor(){
+        super();
+    }
+})();
 
 function start():void {
     const { app, BrowserWindow, ipcMain } = require("electron");
@@ -95,7 +101,7 @@ function start():void {
                 nodeIntegration: true
             }
         });
-        win.loadFile(`${__dirname}/../render/.html`);
+        win.loadFile(`${__dirname}/../render/index.html`);
         win.on("closed",()=>winClosed=true);
         let size=win.getSize();
         Window.width=size[0];
@@ -113,13 +119,17 @@ function start():void {
             Mouse.x=data.x;
             Mouse.y=data.y;
         });
+        ipcMain.on("mousedown",(e:any,data:{button:number})=>{
+            if(mousePressed instanceof Function)mousePressed(data.button);
+        });
     });
 };
 
 async function frame () {
     if(winClosed)return;
     if(loop instanceof Function)loop();
-    await win.webContents.executeJavaScript(`${Graphics.instructions.map(s=>`ctx.${s}`).join('\n')}`);
+    EntityRegistery.update();
+    await win.webContents.executeJavaScript(Graphics.instructions.join('\n'));
     Graphics.instructions=[];
     setTimeout(frame,1000/30);
 };
@@ -130,11 +140,12 @@ async function frame () {
  * @param {Function} options.setup a function that's called when the game starts.
  * @param {Function} options.loop a function that's called each frame.
  */
-export function run(options: { setup?: Function, loop?: Function }) {
+export function run(options: { setup?: Function, loop?: Function, mousePressed?: (button:number)=>void }) {
     if(started)throw new Error("The app has already started")
     start();
     setup=options.setup;
     loop=options.loop;
+    mousePressed=options.mousePressed;
     return {
         Keyboard,
         Window,
@@ -145,7 +156,10 @@ export function run(options: { setup?: Function, loop?: Function }) {
 };
 
 export {
-    Vector,
     Vector2d,
-    Entity2d
+    Entity2d,
+    Body2d,
+    CircleBody,
+    PolygonBody,
+    RectBody
 };

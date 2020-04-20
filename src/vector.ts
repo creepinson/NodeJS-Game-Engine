@@ -1,81 +1,3 @@
-export class Vector {
-    data:Array<number>=[];
-    length:number;
-    
-    constructor(length:number){
-        this.length=length;
-        for(let i=0;i<length;i++)this.data[i]=0;
-    }
-
-    add(v:Vector):Vector {
-        if(this.length!=v.length)throw new Error("Can't perform operations on vectors of differing lengths");
-        for(let i=0;i<this.length;i++)this.data[i]+=v.data[i];
-        return this;
-    }
-
-    static add(v1:Vector, v2:Vector):Vector {
-        return v1.copy().add(v2);
-    }
-
-    sub(v:Vector):Vector {
-        if(this.length!=v.length)throw new Error("Can't perform operations on vectors of differing lengths");
-        for(let i=0;i<this.length;i++)this.data[i]-=v.data[i];
-        return this;
-    }
-
-    static sub(v1:Vector, v2:Vector):Vector {
-        return v1.copy().sub(v2);
-    }    
-
-    scale(n:number):Vector {
-        for(let i=0;i<this.length;i++)this.data[i]*=n;
-        return this;
-    }
-
-    static scale(v:Vector, n:number):Vector {
-        return v.copy().scale(n);
-    }
-
-    mag():number {
-        let squaredSum=0;
-        for(let i=0;i<this.length;i++)squaredSum+=this.data[i]**2;
-        return squaredSum**(1/2);
-    }
-
-    normalize():Vector {
-        return this.scale(this.mag()**-1);
-    }
-
-    static normalize(v:Vector):Vector {
-        return v.copy().normalize();
-    }
-
-    setMag(n:number) {
-        return this.normalize().scale(n);
-    }
-
-    static setMag(v:Vector,n:number) {
-        return v.copy().setMag(n);
-    }
-
-    copy() {
-        return Vector.fromArray(this.toArray());
-    }
-
-    toArray():Array<number> {
-        let data=[];
-        for(let i=0;i<this.length;i++)data[i]=this.data[i];
-        return data;
-    }
-
-    static fromArray(array:Array<number>):Vector {
-        let v=new Vector(array.length);
-        v.data=array;
-        return v;
-    }
-
-}
-
 export class Vector2d {
     x:number;
     y:number;
@@ -122,7 +44,6 @@ export class Vector2d {
         this.y-=v.y;
         return this;
     }
-
     /**
      * Get the difference of two vectors.
      * @param {Vector2d} v1 the operand vector.
@@ -132,7 +53,14 @@ export class Vector2d {
     static sub(v1:Vector2d, v2:Vector2d):Vector2d {
         return v1.copy().sub(v2);
     }
-
+    /**
+     * Get the dot product of this and the passed vector.
+     * @param {Vector2d} v the vector to multiplly with.
+     * @returns {number} the result of the multiplication.
+     */
+    dot(v:Vector2d) {
+        return this.x*v.x+this.y*v.y;
+    }
     /**
      * Scale the vector by a certain factor.
      * @param {number} n the factor to scale by.
@@ -159,7 +87,11 @@ export class Vector2d {
      * @returns {number} the length.
      */
     mag():number {
-        return (this.x**2+this.y**2)**(1/2);
+        return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
+    }
+
+    sqMag():number {
+        return Math.pow(this.x,2)+Math.pow(this.y,2);
     }
 
     /**
@@ -167,7 +99,7 @@ export class Vector2d {
      * @returns {Vector2d}
      */
     normalize():Vector2d {
-        return this.scale(this.mag()**-1);
+        return this.scale(Math.pow(this.mag(),-1));
     }
 
     /**
@@ -196,7 +128,6 @@ export class Vector2d {
     static setMag(v:Vector2d,n:number) {
         return v.copy().setMag(n);
     }
-
     /**
      * Get a copy of this vector
      * @returns {Vector2d} a copy of this vector.
@@ -210,7 +141,7 @@ export class Vector2d {
      * @returns {number} the angle of this vector.
      */
     angle(){
-        return Math.atan2(this.y,this.x)-Math.PI/2;
+        return Math.atan2(this.y,this.x);
     }
 
     /**
