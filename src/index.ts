@@ -2,6 +2,7 @@ import G from "./graphics";
 import {EntityRegistery as ER, Entity2d} from "./entity";
 import { Vector2d } from "./vector";
 import {Body2d,CircleBody,RectBody,PolygonBody} from "./physics";
+import {DOM as D, Button} from "./dom";
 
 let win:any;
 let started:boolean = false;
@@ -11,6 +12,7 @@ let mousePressed:(Function|undefined);
 let winClosed:boolean=false;
 const Graphics:G=new G();
 const EntityRegistery:ER=new ER({Graphics});
+const DOM=new D();
 
 const errIfNotStart=():void=>{
     if(!started) throw new Error("Can't call this method before the app starts");
@@ -122,6 +124,10 @@ function start():void {
         ipcMain.on("mousedown",(e:any,data:{button:number})=>{
             if(mousePressed instanceof Function)mousePressed(data.button);
         });
+        ipcMain.on("element-click",(e:any,data:{id:number})=>{
+            let click=DOM.elements[data.id].events.click;
+            if(click instanceof Function)click();
+        });
     });
 };
 
@@ -129,8 +135,10 @@ async function frame () {
     if(winClosed)return;
     if(loop instanceof Function)loop();
     EntityRegistery.update();
-    await win.webContents.executeJavaScript(Graphics.instructions.join('\n'));
+    DOM.update();
+    await win.webContents.executeJavaScript(`${Graphics.instructions.join('\n')}\n${DOM.instructions.join('\n')}`);
     Graphics.instructions=[];
+    DOM.instructions=[];
     setTimeout(frame,1000/30);
 };
 
@@ -151,7 +159,8 @@ export function run(options: { setup?: Function, loop?: Function, mousePressed?:
         Window,
         Mouse,
         Graphics,
-        EntityRegistery
+        EntityRegistery,
+        DOM
     };
 };
 
@@ -161,5 +170,6 @@ export {
     Body2d,
     CircleBody,
     PolygonBody,
-    RectBody
+    RectBody,
+    Button
 };

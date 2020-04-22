@@ -1,7 +1,7 @@
 import {Vector2d} from "./vector";
 
 function CvC(pos1:Vector2d, r1:number, pos2:Vector2d, r2:number):boolean {
-    return Math.pow(r1+r2,2)>pos1.copy().sub(pos2).sqMag();
+    return (r1+r2)**2>pos1.copy().sub(pos2).magSq();
 }
 
 function BBvBB(pos1:Vector2d, w1:number, h1:number, pos2:Vector2d, w2:number, h2:number) {
@@ -23,7 +23,7 @@ export class Body2d {
     maxSpeed:number;
 
     constructor (options:options={}) {
-        this.inverseMass=options.mass?Math.pow(options.mass,-1):1;
+        this.inverseMass=options.mass?1/options.mass:1;
         this.isStatic=options.isStatic??false;
         this.maxSpeed=options.maxSpeed??Infinity;
     }
@@ -31,10 +31,10 @@ export class Body2d {
     collision(b:Body2d):boolean {return false};
 
     move(timeStepLength:number) {
-        this.vel.add(this.acc.copy().scale(timeStepLength||1));
-        this.acc=new Vector2d();
-        if(this.vel.mag()>this.maxSpeed)this.vel.setMag(this.maxSpeed);
-        this.pos.add(this.vel.copy().scale(timeStepLength||1));
+        this.vel.add(this.acc.copy().scale(timeStepLength));
+        this.acc.set(0,0);
+        if(this.vel.magSq()>this.maxSpeed**2)this.vel.setMag(this.maxSpeed);
+        this.pos.add(this.vel.copy().scale(timeStepLength));
     }
 
     accelerate(v:Vector2d){
@@ -51,10 +51,10 @@ export class PolygonBody extends Body2d {
         this.vertices=vertices;
         let g=0;
         for(let v of vertices){
-            let d=v.sqMag();
+            let d=v.magSq();
             if(d>g)g=d;
         }
-        this.r=Math.sqrt(g);
+        this.r=g**(1/2);
     }
 
     collision(b:Body2d):boolean {

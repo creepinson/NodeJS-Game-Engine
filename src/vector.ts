@@ -87,11 +87,11 @@ export class Vector2d {
      * @returns {number} the length.
      */
     mag():number {
-        return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
+        return this.magSq()**(1/2);
     }
 
-    sqMag():number {
-        return Math.pow(this.x,2)+Math.pow(this.y,2);
+    magSq():number {
+        return this.x**2+this.y**2;
     }
 
     /**
@@ -99,7 +99,7 @@ export class Vector2d {
      * @returns {Vector2d}
      */
     normalize():Vector2d {
-        return this.scale(Math.pow(this.mag(),-1));
+        return this.scale(1/this.mag());
     }
 
     /**
@@ -127,6 +127,13 @@ export class Vector2d {
      */
     static setMag(v:Vector2d,n:number) {
         return v.copy().setMag(n);
+    }
+    /**
+     * 
+     */
+    set(x:number,y:number) {
+        this.x=x;
+        this.y=y
     }
     /**
      * Get a copy of this vector
