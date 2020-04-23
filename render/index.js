@@ -89,19 +89,26 @@ function createElement(options) {
         e.id=options.id;
         e.addEventListener("click",()=>ipcRenderer.send("element-click",{id:options.id}));
         e.style.position='absolute';
-        e.style.left=`${options.pos.x===undefined?'0px':options.pos.x}`;
-        e.style.top=`${options.pos.y===undefined?'0px':options.pos.y}`;
-        e.innerText=options.text===undefined?'':options.text;
+        e.style.left=`${options.pos.x-options.width/2}px`;
+        e.style.top=`${options.pos.y-options.height/2}px`;
+        e.style.transform=`rotate(${options.rotation}rad)`;
+        e.style.width=`${options.width}px`;
+        e.style.height=`${options.height}px`;
+        e.style.borderRadius=`${options.borderRadius}%`;
+        e.innerText=options.text;
         document.body.appendChild(e);
-        console.log(e);
         break;
     }
 }
 
 function updateElement(id,options) {
     let e=document.getElementById(id);
-    e.style.left=`${options.pos.x}px`;
-    e.style.top=`${options.pos.y}px`;
+    e.style.left=`${options.pos.x-options.width/2}px`;
+    e.style.top=`${options.pos.y-options.height/2}px`;
+    e.style.transform=`rotate(${options.rotation}rad)`;
+    e.style.width=`${options.width}px`;
+    e.style.height=`${options.height}px`;
+    e.style.borderRadius=`${options.borderRadius}%`;
     e.innerText=options.innerText;
 }
 

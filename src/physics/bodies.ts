@@ -1,4 +1,6 @@
-import {Vector2d} from "./vector";
+import {Vector2d} from "../vector";
+import {World} from "./index";
+import Graphics from "../graphics";
 
 function CvC(pos1:Vector2d, r1:number, pos2:Vector2d, r2:number):boolean {
     return (r1+r2)**2>pos1.copy().sub(pos2).magSq();
@@ -15,6 +17,9 @@ interface options {
 }
 
 export class Body2d {
+    uid:number=-1;
+    group:string="";
+    removed:boolean=false;
     pos:Vector2d=new Vector2d();
     vel:Vector2d=new Vector2d();
     acc:Vector2d=new Vector2d();
@@ -28,9 +33,10 @@ export class Body2d {
         this.maxSpeed=options.maxSpeed??Infinity;
     }
 
-    collision(b:Body2d):boolean {return false};
+    collide(b:Body2d):boolean {return false};
 
     move(timeStepLength:number) {
+        if(this.isStatic)return;
         this.vel.add(this.acc.copy().scale(timeStepLength));
         this.acc.set(0,0);
         if(this.vel.magSq()>this.maxSpeed**2)this.vel.setMag(this.maxSpeed);
@@ -38,8 +44,21 @@ export class Body2d {
     }
 
     accelerate(v:Vector2d){
-        if(!this.isStatic)this.acc.add(v);
+        this.acc.add(v);
     };
+
+    update(World:World,timeStepLength:number){
+        this.move(timeStepLength);
+        this.timeStep(World);
+    };
+
+    kill() {
+        this.removed=true;
+    };
+
+    timeStep(World:World) {};
+    frame(Graphics:Graphics,World:World) {};
+    collision(World:World,body:Body2d):boolean {return true;};
 
 }
 
@@ -57,7 +76,7 @@ export class PolygonBody extends Body2d {
         this.r=g**(1/2);
     }
 
-    collision(b:Body2d):boolean {
+    collide(b:Body2d):boolean {
         if(b instanceof CircleBody) {
             return CvC(this.pos,this.r,b.pos,b.r);
         }
@@ -86,11 +105,11 @@ export class CircleBody extends Body2d {
         this.r=r;
     }
 
-    collision(b:Body2d):boolean {
+    collide(b:Body2d):boolean {
         if(b instanceof CircleBody) {
             if(!CvC(this.pos,this.r,b.pos,b.r))return false;
-            let rv=b.vel.copy().sub(this.vel);
             let n=b.pos.copy().sub(this.pos).normalize();
+            let rv=b.vel.copy().sub(this.vel);
             let vn=rv.dot(n);
             if(vn>0)return false;
             let e=1;

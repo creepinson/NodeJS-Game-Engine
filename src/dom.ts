@@ -38,23 +38,48 @@ export class DOM {
 
 }
 
+interface DOMOptions {
+    pos?:Vector2d;
+    innerText?:string;
+    rotation?:number;
+    width?:number;
+    height?:number;
+    borderRadius?:number;
+}
+
+interface ElementOptions extends DOMOptions {
+    tag?:string
+}
+
 class Element {
     id:number=-1;
     pos:Vector2d;
     tag:string;
     events:{[key:string]:Function}={};
     innerText:string;
+    rotation:number;
+    width:number;
+    height:number;
+    borderRadius:number;
 
-    constructor(options:{tag?:string,pos?:Vector2d,innerText?:string}) {
+    constructor(options:ElementOptions) {
         this.pos=options.pos??new Vector2d();
         this.tag=options.tag??"";
         this.innerText=options.innerText??"";
+        this.rotation=options.rotation??0;
+        this.width=options.width??50;
+        this.height=options.height??50;
+        this.borderRadius=options.borderRadius??0;
     }
 
 }
 
+interface ButtonOptions extends DOMOptions {
+    click?:Function
+}
+
 export class Button extends Element {
-    constructor(options:{pos?:Vector2d,innerText?:string,click?:Function}) {
+    constructor(options:ButtonOptions) {
         super({...options,...{tag:'button'}});
         this.events["click"]=options.click??(()=>{});
     }

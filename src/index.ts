@@ -1,7 +1,6 @@
 import G from "./graphics";
-import {EntityRegistery as ER, Entity2d} from "./entity";
+import {World as W, Body2d,CircleBody,RectBody,PolygonBody} from "./physics/index";
 import { Vector2d } from "./vector";
-import {Body2d,CircleBody,RectBody,PolygonBody} from "./physics";
 import {DOM as D, Button} from "./dom";
 
 let win:any;
@@ -11,7 +10,7 @@ let loop:(Function|undefined);
 let mousePressed:(Function|undefined);
 let winClosed:boolean=false;
 const Graphics:G=new G();
-const EntityRegistery:ER=new ER({Graphics});
+const World:W=new W(Graphics);
 const DOM=new D();
 
 const errIfNotStart=():void=>{
@@ -134,7 +133,6 @@ function start():void {
 async function frame () {
     if(winClosed)return;
     if(loop instanceof Function)loop();
-    EntityRegistery.update();
     DOM.update();
     await win.webContents.executeJavaScript(`${Graphics.instructions.join('\n')}\n${DOM.instructions.join('\n')}`);
     Graphics.instructions=[];
@@ -159,14 +157,13 @@ export function run(options: { setup?: Function, loop?: Function, mousePressed?:
         Window,
         Mouse,
         Graphics,
-        EntityRegistery,
+        World,
         DOM
     };
 };
 
 export {
     Vector2d,
-    Entity2d,
     Body2d,
     CircleBody,
     PolygonBody,
