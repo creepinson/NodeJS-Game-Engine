@@ -1,17 +1,18 @@
-import G from "./graphics";
-import {World as W, Body2d,CircleBody,RectBody,PolygonBody} from "./physics/index";
+import Graphics from "./graphics";
+import {World, Body2d,CircleBody,RectBody,PolygonBody} from "./physics/index";
 import { Vector2d } from "./vector";
-import {DOM as D, Button} from "./dom";
+import {DOM, Button} from "./dom";
 
-let win:any;
-let started:boolean = false;
-let setup:(Function|undefined);
-let loop:(Function|undefined);
-let mousePressed:(Function|undefined);
-let winClosed:boolean=false;
-const Graphics:G=new G();
-const World:W=new W(Graphics);
-const DOM=new D();
+let win:any,
+started:boolean = false,
+setup:(Function|undefined),
+loop:(Function|undefined),
+mousePressed:(Function|undefined),
+winClosed:boolean=false;
+
+const G:Graphics=new Graphics(),
+W:World=new World(G),
+D:DOM=new DOM();
 
 const errIfNotStart=():void=>{
     if(!started) throw new Error("Can't call this method before the app starts");
@@ -124,7 +125,7 @@ function start():void {
             if(mousePressed instanceof Function)mousePressed(data.button);
         });
         ipcMain.on("element-click",(e:any,data:{id:number})=>{
-            let click=DOM.elements[data.id].events.click;
+            let click=D.elements[data.id].events.click;
             if(click instanceof Function)click();
         });
     });
@@ -133,10 +134,10 @@ function start():void {
 async function frame () {
     if(winClosed)return;
     if(loop instanceof Function)loop();
-    DOM.update();
-    await win.webContents.executeJavaScript(`${Graphics.instructions.join('\n')}\n${DOM.instructions.join('\n')}`);
-    Graphics.instructions=[];
-    DOM.instructions=[];
+    D.update();
+    await win.webContents.executeJavaScript(`${G.instructions.join('\n')}\n${D.instructions.join('\n')}`);
+    G.instructions=[];
+    D.instructions=[];
     setTimeout(frame,1000/30);
 };
 
@@ -156,9 +157,9 @@ export function run(options: { setup?: Function, loop?: Function, mousePressed?:
         Keyboard,
         Window,
         Mouse,
-        Graphics,
-        World,
-        DOM
+        Graphics:G,
+        World:W,
+        DOM:D
     };
 };
 
@@ -168,5 +169,7 @@ export {
     CircleBody,
     PolygonBody,
     RectBody,
-    Button
+    Button,
+    World,
+    Graphics
 };

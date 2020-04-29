@@ -2,11 +2,13 @@ import {Vector2d} from "../vector";
 import {World} from "./index";
 import Graphics from "../graphics";
 
+//Returns true if the two circles intersect.
 function CvC(pos1:Vector2d, r1:number, pos2:Vector2d, r2:number):boolean {
     return (r1+r2)**2>pos1.copy().sub(pos2).magSq();
 }
 
-function BBvBB(pos1:Vector2d, w1:number, h1:number, pos2:Vector2d, w2:number, h2:number) {
+//Return true if the two axis aligned bounding boxes intersect.
+function AABBvAABB(pos1:Vector2d, w1:number, h1:number, pos2:Vector2d, w2:number, h2:number) {
     return pos1.x-w1/2<pos2.x+w2/2&&pos1.x+w1/2>pos2.x-w2/2&&pos1.y-h1/2<pos2.y+h2/2&&pos1.y+h1/2>pos2.y-h2/2
 }
 
@@ -28,38 +30,37 @@ export class Body2d {
     maxSpeed:number;
 
     constructor (options:options={}) {
-        this.inverseMass=options.mass?1/options.mass:1;
+        this.inverseMass=1/(options.mass??1);
         this.isStatic=options.isStatic??false;
         this.maxSpeed=options.maxSpeed??Infinity;
     }
 
     collide(b:Body2d):boolean {return false};
 
-    move(timeStepLength:number) {
-        if(this.isStatic)return;
-        this.vel.add(this.acc.copy().scale(timeStepLength));
-        this.acc.set(0,0);
-        if(this.vel.magSq()>this.maxSpeed**2)this.vel.setMag(this.maxSpeed);
-        this.pos.add(this.vel.copy().scale(timeStepLength));
-    }
-
     accelerate(v:Vector2d){
         this.acc.add(v);
     };
 
     update(World:World,timeStepLength:number){
-        this.move(timeStepLength);
+        //Update position and velocity
+        if(this.isStatic)return;
+        this.vel.add(this.acc.copy().scale(timeStepLength));
+        this.acc.set(0,0);
+        if(this.vel.magSq()>this.maxSpeed**2)this.vel.setMag(this.maxSpeed);
+        this.pos.add(this.vel.copy().scale(timeStepLength));
+        //Run dev assigned timestep function
         this.timeStep(World);
     };
 
     kill() {
         this.removed=true;
+        this.death();
     };
 
-    timeStep(World:World) {};
-    frame(Graphics:Graphics,World:World) {};
+    timeStep(World:World):void {};
+    frame(Graphics:Graphics,World:World):void {};
     collision(World:World,body:Body2d):boolean {return true;};
-
+    death():void {};
 }
 
 export class PolygonBody extends Body2d {

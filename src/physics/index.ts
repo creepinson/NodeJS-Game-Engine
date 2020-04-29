@@ -40,18 +40,14 @@ export class World {
                     let body1=this.bodies[+bodies[i]],
                     body2=this.bodies[+bodies[j]];
                     if(body1.collide(body2)){
-                        if(!body1.removed)body1.collision(this,body2);
-                        if(!body2.removed)body2.collision(this,body1);
+                        body1.collision(this,body2);
+                        body2.collision(this,body1);
                     };
                 };
                 if(this.bodies[+bodies[i]].removed)this.removeBody(+bodies[i]);
             }
         }
-    };
-
-    frame(group:string) {
-        if(!this.groups.hasOwnProperty(group))throw new Error(`Body group ${group} doesn't exist`);
-        this.groups[group].forBody((body,uid)=>body.frame(this.Graphics,this));
+        for(let group in this.groups)this.groups[group].forBody((body:Body2d)=>body.frame(this.Graphics,this));
     };
 
     getGroup(group:string):BodyGroup {
