@@ -165,7 +165,7 @@ export default class Graphics {
      * @param radius the radius of the polygon
      * @param rotation the angle the polygon will be rotated by
      */
-    polygon(x:number,y:number,sides:number,radius:number,rotation:number=0) {
+    polygon(x:number,y:number,sides:number,radius:number,rotation=0) {
         if(!this.doFill&&!this.doStroke)return;
         this.instruct("polygon",x,y,sides,radius,rotation);
         this.fill();
@@ -182,7 +182,7 @@ export default class Graphics {
      * @param end 
      * @param counter 
      */
-    ellipse(x:number,y:number,rx:number,ry:number=rx,rotation:number=0,start:number=0,end:number=Math.PI*2,counter:boolean=false) {
+    ellipse(x:number,y:number,rx:number,ry:number=rx,rotation=0,start=0,end:number=Math.PI*2,counter=false) {
         if(!this.doFill&&!this.doStroke)return;
         this.instruct("ellipse",x,y,rx,ry,rotation,start,end,counter);
         this.fill();
