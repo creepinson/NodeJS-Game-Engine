@@ -1,17 +1,21 @@
 {
-  "name": "game-engine",
-  "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
-  "scripts": {
-    "build": "tsc",
-    "prestart": "npm run build"
-  },
-  "keywords": [],
-  "author": "Brent Trenholme",
-  "license": "ISC",
-  "dependencies": {
-    "@types/node": "^13.11.1",
-    "electron": "^8.2.3"
-  }
+    "name": "game-engine",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "prestart": "npm run build"
+    },
+    "keywords": [],
+    "author": "Theo Paris",
+    "license": "MIT",
+    "dependencies": {
+        "@toes/core": "^0.0.1",
+        "@types/node": "^14.14.10",
+        "electron": "^11.0.3"
+    },
+    "prettier": {
+        "tabWidth": 4
+    }
 }
